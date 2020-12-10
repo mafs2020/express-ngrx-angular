@@ -2,8 +2,9 @@ const express = require('express');
 const app = express();
 const morgan = require('morgan');
 
-const alumno = require('./rutas/alumnoRutas');
 require('./db/conexion');
+
+const alumno = require('./rutas/alumnoRutas');
 
 app.use(express.json());
 app.use(express.urlencoded({extended: false, limit: 10000000}));

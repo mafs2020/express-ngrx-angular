@@ -19,8 +19,9 @@ module.exports = (sequelize, DataTypes) => {
     edad: DataTypes.INTEGER
   }, {
     sequelize,
-    modelName: 'Usuario',
-    freezeTableName: true
+    modelName: 'usuarios',
+    freezeTableName: true,
+    timestamps:false
   });
   return Usuario;
 };

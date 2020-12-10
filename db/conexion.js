@@ -1,9 +1,10 @@
-const { Sequelize, Op, Model, DataTypes } = require("sequelize");
+const { Sequelize } = require('Sequelize');
 
 const sequelize = new Sequelize('escuela', 'root', 'Mafs1920', {
     host: 'localhost',
     dialect: 'mysql'
 });
+
 
 ( async ()=> {
     try {
@@ -12,8 +13,13 @@ const sequelize = new Sequelize('escuela', 'root', 'Mafs1920', {
     } catch (error) {
         console.error('Unable to connect to the database:', error);
     }
-})()
-db = {
-    Sequelize, Op, DataTypes, sequelize
-}
-module.export = db;
+})();
+
+const Usuario = require('../models/usuario');
+
+
+const UsuarioModel = Usuario(sequelize, Sequelize);
+
+module.exports = {
+    UsuarioModel
+};

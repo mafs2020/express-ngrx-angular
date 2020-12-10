@@ -1,13 +1,13 @@
-const AlumnoModel = require('../models/alumnoModel');
+const { AlumnoModelo } = require('../db/conexion');
 
 
 const AlumnoController = {
 
-    guardar: (req, res) => {
+    guardar: async (req, res) => {
         const { firstname, lastname, edad } = req.body;
 
         try {
-            AlumnoModel.create({firstname, lastname, edad});            
+            await AlumnoModelo.create({firstname, lastname, edad});            
             console.log('se guardo el usuario');
         } catch (err) {
             console.log('ocurrio un error', err);

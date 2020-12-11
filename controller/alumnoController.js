@@ -1,23 +1,31 @@
 const { UsuarioModel } = require('../db/conexion');
 
-const ModeloClase = require('../classes/crudClass');
-const modeloClase = new ModeloClase(UsuarioModel);
-
 const AlumnoController = {
 
-    guardar: async (req, res) => {
-        const { nombre, apellido, edad } = req.body;
-
+    get: async (req, res) => {
+        let { pagina } = req.query || 1;
         try {
-            // await UsuarioModel.create({ nombre, apellido, edad });
-            const usuarios = await modeloClase.get();
-            return res.json(usuarios)
+            const usuarios = await UsuarioModel.findAll({
+                where: {},
+                limit: 10,
+                offset: pagina * 10
+            });
+            return res.json(usuarios);
         } catch (err) {
             console.log('ocurrio un error', err);
+            return res.status(401).json({ok:false, msj:'ocurrio un error'});
         }
-        res.send('ok');
-
     },
+
+    postAgregar: async (req, res) => {
+        const {nombre, apellido, edad } = req.body;
+        try {
+            const puesto = await UsuarioModel.create({nombre, apellido, edad});
+            return res.json(puesto);
+        } catch (err) {
+            return res.status(403).json({ok:false});
+        }
+    }
 
 
 

@@ -16,10 +16,12 @@ const sequelize = new Sequelize('escuela', 'root', 'Mafs1920', {
 })();
 
 const Usuario = require('../models/usuario');
+const PuestoModelo = require('../models/puesto')(sequelize, Sequelize);
 
 
 const UsuarioModel = Usuario(sequelize, Sequelize);
 
 module.exports = {
-    UsuarioModel
+    UsuarioModel,
+    PuestoModelo
 };

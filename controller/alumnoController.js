@@ -5,14 +5,31 @@ const AlumnoController = {
     get: async (req, res) => {
         let { pagina } = req.query;
         if(!pagina) pagina = 0;
-        
+        pagina = parseInt(pagina);
+        if(isNaN(pagina)) return res.status(401).json({ok:false, msj: 'ocurrio un error al obtener alumnos'});
         try {
-            const usuarios = await UsuarioModel.findAll({
+            const resp = await UsuarioModel.findAndCountAll({
                 where: {},
                 limit: 10,
                 offset: pagina * 10
             });
-            return res.json(usuarios);
+            const total = Math.ceil(resp.count/10);
+            resp.total = total;
+            resp.next = pagina < total;
+            if(pagina < total){
+                pagina += 1;
+                resp.url = `http://localhost:3000/?pagina=${pagina}`;
+            } else {
+                resp.url = null;
+            }
+            pagina -= 2;
+            if(pagina < 0){
+                resp.prev = null;
+            } else {
+                resp.prev = `http://localhost:3000/?pagina=${pagina}`;
+            }
+            // resp.rows = [];
+            return res.json(resp);
         } catch (err) {
             console.log('ocurrio un error', err);
             return res.status(401).json({ok:false, msj:'ocurrio un error'});
@@ -33,23 +50,26 @@ const AlumnoController = {
 
     postAgregar: async (req, res) => {
         const {nombre, apellido, edad } = req.body;
+        if(!nombre || !apellido || !edad) return res.status(400).json({ok:false, msj: 'faltan campos para agregar al usuario'});
         try {
             const puesto = await UsuarioModel.create({nombre, apellido, edad});
             return res.json(puesto);
         } catch (err) {
-            return res.status(400).json({ok:false});
+            return res.status(400).json({ok:false, err});
         }
     },
 
     putActualizar: async (req, res) => {
         const { nombre, apellido, edad } = req.body;
-        // const { id } = req.params;
-        if(!nombre || !apellido || !edad) return res.status(401).json({ok:false, msj:'faltan datos'});
+        const { id } = req.params;
+        if(!id) return res.status(401).json({ok:false, msj:'faltan datos'});
+        
+        if(!nombre || !apellido || !edad) return res.status(401).json({ok:false, msj:'faltan campos'});
         try {
             const usuario = await UsuarioModel.update({ nombre, apellido, edad }, { where: { id }, fields: ['nombre', 'apellido', 'edad'] });
             return res.json(usuario);
         } catch (err) {
-            return res.status(401).json({ok:false, msj: 'ocurrio un error al actualizar'});
+            return res.status(401).json({ok:false, msj: 'ocurrio un error al actualizar', err});
         }
 
     },
@@ -66,12 +86,7 @@ const AlumnoController = {
 
     }
 
-
-
 };
-
-
-
 
 
 module.exports = AlumnoController;

@@ -1,4 +1,5 @@
 const { UsuarioModel } = require('../db/conexion');
+const jwt = require('jsonwebtoken');
 
 const AlumnoController = {
 
@@ -53,7 +54,8 @@ const AlumnoController = {
         if(!nombre || !apellido || !edad) return res.status(400).json({ok:false, msj: 'faltan campos para agregar al usuario'});
         try {
             const puesto = await UsuarioModel.create({nombre, apellido, edad});
-            return res.json(puesto);
+            const token = jwt.sign({ puesto }, 'shhhhh');
+            return res.json(token);
         } catch (err) {
             return res.status(400).json({ok:false, err});
         }

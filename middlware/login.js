@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 
 isLogin = async (req, res, next) => {
+    console.log('object');
     const { token } = req.headers;
     try {
         const decoded = jwt.verify(token, 'shhhhh');

@@ -1,5 +1,6 @@
 const { UsuarioModel } = require('../db/conexion');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 
 const AlumnoController = {
 
@@ -50,12 +51,13 @@ const AlumnoController = {
     },
 
     postAgregar: async (req, res) => {
-        const {nombre, apellido, edad } = req.body;
+        const {nombre, apellido, edad, password= '123456' } = req.body;
         if(!nombre || !apellido || !edad) return res.status(400).json({ok:false, msj: 'faltan campos para agregar al usuario'});
+
         try {
-            const puesto = await UsuarioModel.create({nombre, apellido, edad});
-            const token = jwt.sign({ puesto }, 'shhhhh');
-            return res.json(token);
+            const hash = await bcrypt.hash(password, 10);
+            const puesto = await UsuarioModel.create({nombre, apellido, edad, password:hash});
+            return res.json(puesto);
         } catch (err) {
             return res.status(400).json({ok:false, err});
         }
@@ -85,6 +87,27 @@ const AlumnoController = {
         } catch (err) {
             return res.status(401).json({ok:false, msl:'ocurrio un error'});
         }
+
+    },
+
+    login: async (req, res) => {
+        const { nombre, password = '123456' } = req.body;
+        if(!nombre || !password) return res.status(400).json({ok:false, msj:'faltan datos al entrar'});
+
+        try {
+            const usuario = await UsuarioModel.findOne( { where: { nombre } } );
+            if(!usuario) return res.status(400).json({ok:false, msj: `no se encuentra al usuario ${nombre}` });
+            console.log('usuario.get() :>> ', usuario.get('password'));
+            const match = await bcrypt.compare(password, usuario.get('password'));
+            if(match){
+                const token = jwt.sign({usuario}, 'secret', {expiresIn: '8h'});
+                if(match) return res.json({ok:match, token});
+            }
+            return res.status(400).json({ok:false, msj: `ocurrio un error` });
+        } catch (err) {
+            return res.status(400).json({ok:false, msj: `ocurrio un error`, error: err });
+        }
+
 
     }
 
